@@ -1,0 +1,541 @@
+/*
+-------------------------------------------------------------------------------------------------------
+
+CS 3460, Homework 2
+
+-------------------------------------------------------------------------------------------------------
+
+Assignment: Random Distributions
+Due: Friday, 09/20/2019 at 11:59 PM
+
+-------------------------------------------------------------------------------------------------------
+
+Name: Jared Hansen
+Anumber: A01439768
+
+-------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+*/
+
+
+
+
+/*
+-------------------------------------------------------------------------------------------------------
+
+
+PRE-PROCESSOR DIRECTIVES
+
+
+-------------------------------------------------------------------------------------------------------
+*/
+#include <cmath>
+#include <cstdlib>
+#include <iomanip>
+#include <iostream>
+#include <random>
+#include <string>
+
+
+
+
+
+
+
+
+/*
+-------------------------------------------------------------------------------------------------------
+
+
+CLASS DEFINITION:
+
+
+-------------------------------------------------------------------------------------------------------
+*/
+class DistributionPair
+{
+public:
+    DistributionPair(std::uint32_t minValue, std::uint32_t maxValue) :
+        minValue(minValue),
+        maxValue(maxValue),
+        count(0)
+    {
+    }
+
+    std::uint32_t minValue;
+    std::uint32_t maxValue;
+    std::uint32_t count;
+};
+
+
+
+
+
+
+
+/*
+-------------------------------------------------------------------------------------------------------
+
+
+FUNCTION PROTOTYPES
+
+
+-------------------------------------------------------------------------------------------------------
+*/
+std::vector<DistributionPair> generateUniformDistribution(std::uint32_t howMany, std::uint32_t min, std::uint32_t max, std::uint8_t numberBins);
+std::vector<DistributionPair> generateNormalDistribution(std::uint32_t howMany, float mean, float stdev, std::uint8_t numberBins);
+std::vector<DistributionPair> generatePoissonDistribution(std::uint32_t howMany, std::uint8_t howOften, std::uint8_t numberBins);
+void plotDistribution(std::string title, const std::vector<DistributionPair>& distribution, const std::uint8_t maxPlotLineSize);
+
+
+
+
+
+
+
+/*
+-------------------------------------------------------------------------------------------------------
+
+
+MAIN FUNCTION DEFINITION
+
+
+-------------------------------------------------------------------------------------------------------
+*/
+int main()
+{
+    // For each of these distributions we are generating 100,000 observations, so let's store that value here
+    const int howMany = 100000;
+
+    // UNIFORM DISTRIBUTION ------------------------------------------------------------------------------------------
+    // Generate howMany draws from the specified uniform distribution
+    auto uniform = generateUniformDistribution(howMany, 0, 79, 40);
+    // Plot the generated distribution
+    plotDistribution("--- Uniform ---", uniform, 80);
+    
+    // NORMAL DISTRIBUTION ------------------------------------------------------------------------------------------
+    // Generate howMany draws from the specified normal distribution
+    auto normal = generateNormalDistribution(howMany, 50, 5, 40);
+    // Plot the generated distribution
+    plotDistribution("--- Normal ---", normal, 80);
+ 
+    // POISSON DISTRIBUTION ------------------------------------------------------------------------------------------
+    // Generate howMany draws from the specified Poisson distribution
+    auto poisson = generatePoissonDistribution(howMany, 6, 40);
+    // Plot the generated distribution
+    plotDistribution("--- Poisson ---", poisson, 80);
+
+
+
+    
+
+    return 0;
+}
+
+
+
+
+
+
+
+
+/*
+-------------------------------------------------------------------------------------------------------
+
+
+FUNCTION DEFINITIONS:     DON'T FORGET TO IMPLEMENT uniform AND poisson FUNCTIONS TOO!!!!!
+
+
+-------------------------------------------------------------------------------------------------------
+*/
+
+
+/*
+-------------------------------------------------------------------------------------------------------
+generatePoissonDistribution DEFINITION:
+-------------------------------------------------------------------------------------------------------
+This function generates howMany random numbers from a Poisson(howOften) distribution.
+It then bins these howMany numbers into numberBins.
+-------------------------------------------------------------------------------------------------------
+*/
+std::vector<DistributionPair> generatePoissonDistribution(std::uint32_t howMany, std::uint8_t howOften, std::uint8_t numberBins)
+{
+    // Create a random device
+    std::random_device rd;
+    // Create a random engine (we'll use default, which uses linear-congruential engine) and seed it using random device
+    std::default_random_engine engine(rd());
+    // Specify which distribution we'll be pulling randomly-generated numbers from
+    std::poisson_distribution<> poisDist(howOften);
+
+    // Initialize an empty vector containing elements of type std::uint32_t (will hold our howMany randomly-generated values)
+    std::vector<std::uint32_t> randVals;
+    // Populate this vector with values from the specified distribution
+    for (std::uint32_t i = 0; i < howMany; ++i)
+    {
+        randVals.push_back(poisDist(engine));
+    }
+
+    // Now that we've generated the values we need to bin them and store this info as a vector of DistributionPair vectors
+    //--------------------------------------------------------------------------------------------------------------------
+    // Initialize a 2-dim vector where the elements are vectors of type DistributionPair
+    std::vector<DistributionPair> binned;
+    // Cast numberBins to uint32_t for sake of ease in the rest of the function
+    /*
+    numberBins = static_cast<std::uint32_t>(numberBins);
+    mean = static_cast<std::uint32_t>(mean);
+    stdev = static_cast<std::uint32_t>(stdev);
+    */
+    //numberBins = static_cast<float>(numberBins);
+    // Determine the minValue of the first bin, cast it to type uint32_t
+    auto minValBinned = 0;
+    //minValBinned = static_cast<uint32_t>(minValBinned);
+    // Determine the maxValue of the last bin, cast it to type uint32_t
+    auto maxValBinned = numberBins - 1;
+    //maxValBinned = static_cast<uint32_t>(maxValBinned);
+    // Determine the binWidth for this distribution = (range of binned values)/(numberBins)
+    //uint32_t binWidth = (std::abs(minValBinned) + std::abs(maxValBinned)) / numberBins;
+    auto binWidth = (std::abs(static_cast<std::int32_t>(minValBinned - maxValBinned)) + 1) / numberBins;
+
+    //for (uint32_t i = 0; i < numberBins; ++i)
+    for (auto i = 0; i < numberBins; ++i)
+    {
+        // Determine the minValue of the (i)th bin
+        //uint32_t minValBinI = minValBinned + (i * binWidth);
+        auto minValBinI = minValBinned + (i * binWidth);
+        // Determine the maxValue of the (i)th bin
+        //uint32_t maxValBinI = minValBinI + (binWidth - 1);
+        auto maxValBinI = minValBinI + (binWidth - 1);
+        // Determine the minValue of the (i+1)th bin
+        //uint32_t minValBinIplusOne = minValBinI + binWidth;
+        auto minValBinIplusOne = minValBinI + binWidth;
+        // Initialize std::uint32_t count of the (i)th bin to 0
+        //uint32_t binCount = 0;
+        auto binCount = 0;
+        //for (uint32_t randVal = 0; randVal < static_cast<uint32_t>(randVals.size()); ++randVal)
+        // How many values are in bin i ?
+        for (unsigned randVal = 0; randVal < randVals.size(); ++randVal)
+        {
+            if ((randVals[randVal] >= minValBinI) && (randVals[randVal] < minValBinIplusOne))
+            {
+                ++binCount;
+            }
+        }
+        // Now that we've counted how many of the random numbers are in that bin, store as a DistributionPair and
+        // pushback (store) in the binned vector of vectors.
+        DistributionPair thisBin = DistributionPair(static_cast<std::uint32_t>(minValBinI), static_cast<std::uint32_t>(maxValBinI));
+        thisBin.count = binCount;
+        binned.push_back(thisBin);
+    }
+    /*
+    for (nth bin in numberBins):
+        // Determine the minValue of the (n+1)th bin
+        // Determine the maxValue for the (n)th bin
+        // Initialize std::uint32_t count = 0
+        for(randVal in howMany):
+            count the number of values in randVals s.t. (randVal >= minNthBin) && (randVal < minNplusOneBin)
+            if((randVal >= minNthBin) && (randVal < minNplusOneBin)): ++count
+        // Once we've counted how many of the numbers are in that bin:
+        binned[nth bin index] = DistributionPair(minValue nth bin, maxValue nth bin, count in nth bin)
+
+    */
+    return binned;
+
+
+}
+
+
+
+/*
+-------------------------------------------------------------------------------------------------------
+generateUniformDistribution DEFINITION:
+-------------------------------------------------------------------------------------------------------
+This function generates howMany random numbers from a uniform[min,max] distribution.
+It then bins these howMany numbers into numberBins.
+-------------------------------------------------------------------------------------------------------
+*/
+std::vector<DistributionPair> generateUniformDistribution(std::uint32_t howMany, std::uint32_t min, std::uint32_t max, std::uint8_t numberBins)
+{
+    // Create a random device
+    std::random_device rd;
+    // Create a random engine (we'll use default, which uses linear-congruential engine) and seed it using random device
+    std::default_random_engine engine(rd());
+    // Specify which distribution we'll be pulling randomly-generated numbers from
+    std::uniform_int_distribution<> unifDist(min, max);
+
+    // Initialize an empty vector containing elements of type std::uint32_t (will hold our howMany randomly-generated values)
+    std::vector<std::uint32_t> randVals;
+    // Populate this vector with values from the specified distribution
+    for (std::uint32_t i = 0; i < howMany; ++i)
+    {
+        randVals.push_back(unifDist(engine));
+    }
+
+    // Now that we've generated the values we need to bin them and store this info as a vector of DistributionPair vectors
+    //--------------------------------------------------------------------------------------------------------------------
+    // Initialize a 2-dim vector where the elements are vectors of type DistributionPair
+    std::vector<DistributionPair> binned;
+    // Cast numberBins to uint32_t for sake of ease in the rest of the function
+    /*
+    numberBins = static_cast<std::uint32_t>(numberBins);
+    mean = static_cast<std::uint32_t>(mean);
+    stdev = static_cast<std::uint32_t>(stdev);
+    */
+    //numberBins = static_cast<float>(numberBins);
+    // Determine the minValue of the first bin, cast it to type uint32_t
+    auto minValBinned = min;
+    //minValBinned = static_cast<uint32_t>(minValBinned);
+    // Determine the maxValue of the last bin, cast it to type uint32_t
+    auto maxValBinned = max;
+    //maxValBinned = static_cast<uint32_t>(maxValBinned);
+    // Determine the binWidth for this distribution = (range of binned values)/(numberBins)
+    //uint32_t binWidth = (std::abs(minValBinned) + std::abs(maxValBinned)) / numberBins;
+    auto binWidth = (std::abs(static_cast<std::int32_t>(minValBinned - maxValBinned)) + 1) / numberBins;
+
+    //for (uint32_t i = 0; i < numberBins; ++i)
+    for (auto i = 0; i < numberBins; ++i)
+    {
+        // Determine the minValue of the (i)th bin
+        //uint32_t minValBinI = minValBinned + (i * binWidth);
+        auto minValBinI = minValBinned + (i * binWidth);
+        // Determine the maxValue of the (i)th bin
+        //uint32_t maxValBinI = minValBinI + (binWidth - 1);
+        auto maxValBinI = minValBinI + (binWidth - 1);
+        // Determine the minValue of the (i+1)th bin
+        //uint32_t minValBinIplusOne = minValBinI + binWidth;
+        auto minValBinIplusOne = minValBinI + binWidth;
+        // Initialize std::uint32_t count of the (i)th bin to 0
+        //uint32_t binCount = 0;
+        auto binCount = 0;
+        //for (uint32_t randVal = 0; randVal < static_cast<uint32_t>(randVals.size()); ++randVal)
+        // How many values are in bin i ?
+        for (unsigned randVal = 0; randVal < randVals.size(); ++randVal)
+        {
+            if ((randVals[randVal] >= minValBinI) && (randVals[randVal] < minValBinIplusOne))
+            {
+                ++binCount;
+            }
+        }
+        // Now that we've counted how many of the random numbers are in that bin, store as a DistributionPair and
+        // pushback (store) in the binned vector of vectors.
+        DistributionPair thisBin = DistributionPair(static_cast<std::uint32_t>(minValBinI), static_cast<std::uint32_t>(maxValBinI));
+        thisBin.count = binCount;
+        binned.push_back(thisBin);
+    }
+    /*
+    for (nth bin in numberBins):
+        // Determine the minValue of the (n+1)th bin
+        // Determine the maxValue for the (n)th bin
+        // Initialize std::uint32_t count = 0
+        for(randVal in howMany):
+            count the number of values in randVals s.t. (randVal >= minNthBin) && (randVal < minNplusOneBin)
+            if((randVal >= minNthBin) && (randVal < minNplusOneBin)): ++count
+        // Once we've counted how many of the numbers are in that bin:
+        binned[nth bin index] = DistributionPair(minValue nth bin, maxValue nth bin, count in nth bin)
+
+    */
+    return binned;
+
+}
+
+
+
+/*
+-------------------------------------------------------------------------------------------------------
+generateNormalDistribution DEFINITION:
+-------------------------------------------------------------------------------------------------------
+This function generates howMany random numbers from a Normal(mean, stdev) distribution.
+It then bins these howMany numbers into numberBins.
+-------------------------------------------------------------------------------------------------------
+*/
+std::vector<DistributionPair> generateNormalDistribution(std::uint32_t howMany, float mean, float stdev, std::uint8_t numberBins)
+{
+    // Create a random device
+    std::random_device rd;
+    // Create a random engine (we'll use default, which uses linear-congruential engine) and seed it using random device
+    std::default_random_engine engine(rd()); 
+    // Specify which distribution we'll be pulling randomly-generated numbers from
+    std::normal_distribution<> normDist{ mean, stdev };
+
+    // Initialize an empty vector containing elements of type double (will hold our howMany randomly-generated values)
+    std::vector<double> randVals;
+    // Populate this vector with values from the specified distribution
+    for (std::uint32_t i = 0; i < howMany; ++i)
+    {
+        randVals.push_back(normDist(engine));
+    }
+
+    // Now that we've generated the values we need to bin them and store this info as a vector of DistributionPair vectors
+    //--------------------------------------------------------------------------------------------------------------------
+    // Initialize a 2-dim vector where the elements are vectors of type DistributionPair
+    std::vector<DistributionPair> binned;
+    // Cast numberBins to uint32_t for sake of ease in the rest of the function
+    /*
+    numberBins = static_cast<std::uint32_t>(numberBins);
+    mean = static_cast<std::uint32_t>(mean);
+    stdev = static_cast<std::uint32_t>(stdev);
+    */
+    //numberBins = static_cast<float>(numberBins);
+    // Determine the minValue of the first bin, cast it to type uint32_t
+    auto minValBinned = (mean - (4 * stdev));
+    //minValBinned = static_cast<uint32_t>(minValBinned);
+    // Determine the maxValue of the last bin, cast it to type uint32_t
+    auto maxValBinned = (mean + (4 * stdev));
+    //maxValBinned = static_cast<uint32_t>(maxValBinned);
+    // Determine the binWidth for this distribution = (range of binned values)/(numberBins)
+    //uint32_t binWidth = (std::abs(minValBinned) + std::abs(maxValBinned)) / numberBins;
+    auto binWidth = (std::abs(minValBinned - maxValBinned)) / numberBins;
+
+    //for (uint32_t i = 0; i < numberBins; ++i)
+    for (auto i = 0; i < numberBins; ++i)
+    {
+        // Determine the minValue of the (i)th bin
+        //uint32_t minValBinI = minValBinned + (i * binWidth);
+        auto minValBinI = minValBinned + (i * binWidth);
+        // Determine the maxValue of the (i)th bin
+        //uint32_t maxValBinI = minValBinI + (binWidth - 1);
+        auto maxValBinI = minValBinI + (binWidth - 1);
+        // Determine the minValue of the (i+1)th bin
+        //uint32_t minValBinIplusOne = minValBinI + binWidth;
+        auto minValBinIplusOne = minValBinI + binWidth;
+        // Initialize std::uint32_t count of the (i)th bin to 0
+        //uint32_t binCount = 0;
+        auto binCount = 0;
+        //for (uint32_t randVal = 0; randVal < static_cast<uint32_t>(randVals.size()); ++randVal)
+        for (unsigned randVal = 0; randVal < randVals.size(); ++randVal)
+        {
+            if ((randVals[randVal] >= minValBinI) && (randVals[randVal] < minValBinIplusOne))
+            {
+                ++binCount;
+            }
+        }
+        // Now that we've counted how many of the random numbers are in that bin, store as a DistributionPair and
+        // pushback (store) in the binned vector of vectors.
+        DistributionPair thisBin = DistributionPair(static_cast<std::uint32_t>(minValBinI), static_cast<std::uint32_t>(maxValBinI));
+        thisBin.count = binCount;
+        binned.push_back(thisBin);
+    }
+    /*
+    for (nth bin in numberBins):
+        // Determine the minValue of the (n+1)th bin
+        // Determine the maxValue for the (n)th bin
+        // Initialize std::uint32_t count = 0
+        for(randVal in howMany):
+            count the number of values in randVals s.t. (randVal >= minNthBin) && (randVal < minNplusOneBin)
+            if((randVal >= minNthBin) && (randVal < minNplusOneBin)): ++count
+        // Once we've counted how many of the numbers are in that bin:
+        binned[nth bin index] = DistributionPair(minValue nth bin, maxValue nth bin, count in nth bin)
+
+    */
+    return binned;
+}
+
+
+
+/*
+-------------------------------------------------------------------------------------------------------
+plotDistribution DEFINITION:
+-------------------------------------------------------------------------------------------------------
+This function takes a title, a vector of DistributionPairs (vectors themselves), and an argument for
+the number of characters to be used for the bin with the most values. It then outputs the title and a
+plot of the data to the console.
+-------------------------------------------------------------------------------------------------------
+*/
+void plotDistribution(std::string title, const std::vector<DistributionPair>& distribution, const std::uint8_t maxPlotLineSize)
+{
+    //-----------------------------------------------------------------------------------------------------------------
+    // Give the name of the distribution
+    //-----------------------------------------------------------------------------------------------------------------
+    std::cout << title << std::endl;
+
+    //-----------------------------------------------------------------------------------------------------------------
+    // Scale the values of the bin counts according to maxPlotLineSize
+    //-----------------------------------------------------------------------------------------------------------------
+    // Store the value of the first binCount as our initial highBin
+    auto highBinVal = distribution[0].count;
+    // Check all other values of count to find the bin with the highest count value
+    for (uint32_t i = 1; i < distribution.size(); ++i)
+    {
+        // Store the value of the current bin
+        auto currentBinVal = distribution[i].count;
+        // If the current bin has a higher count than the previous highest bin val, save a new highBinVal
+        if (currentBinVal > highBinVal)
+        {
+            highBinVal = currentBinVal;
+        }
+    }
+    // Determine the scaling factor: scaleFactor = biggestBin / 80;
+    float scaleFactor = (static_cast<float>(maxPlotLineSize) / highBinVal);
+    // Make a copy of distribution (copyDist), multiply all count values by scaleFactor,
+    // round to nearest integer, store as the count values in copyDist
+    std::vector<DistributionPair> copyDist = distribution;
+    for (unsigned i = 0; i < distribution.size(); ++i)
+    {
+        copyDist[i].count = static_cast<std::uint32_t>(std::round(scaleFactor * distribution[i].count));
+    }
+
+    //-----------------------------------------------------------------------------------------------------------------
+    // Graphical output of the scaled distribution
+    //-----------------------------------------------------------------------------------------------------------------
+    // Find maximum widths needed to display the widest minValue and maxValue numbers 
+    // Initialize widths as 0
+    //auto lowerBoundWidth = 0;
+    //auto upperBoundWidth = 0;
+    // We know that the bin values for the final bin will be the widest, use these to set maximums
+    int lowerBoundWidth = static_cast<std::int8_t>(std::to_string(copyDist[(copyDist.size() - 1u)].minValue).length()) + 1;
+    int upperBoundWidth = static_cast<std::int8_t>(std::to_string(copyDist[(copyDist.size() - 1u)].maxValue).length()) + 1;
+    // Display each DistributionPair as: [ minBinVal, maxBinVal] : countAsterisks
+    for (std::vector<DistributionPair>::iterator iter = copyDist.begin();
+        iter != copyDist.end();
+        ++iter)
+    {
+        std::cout << "[" << std::setw(lowerBoundWidth) << iter->minValue;
+        std::cout << "," << std::setw(upperBoundWidth) << iter->maxValue << "] : ";
+        // use a for loop to print the asterisks
+        for (unsigned i = 0; i < iter->count; ++i)
+        {
+            std::cout << "*";
+        }
+        //std::cout << std::setfill('*') << std::setw(iter->count)  << std::endl;
+        std::cout << std::endl;
+    }
+    // Output a couple of blank lines to separate the output for the 3 distributions
+    std::cout << std::endl << std::endl;
+
+
+
+    /*
+    // Display the bin bounds with counts as asterisks
+    for (unsigned i = 0; i < copyDist.size(); ++i)
+    {
+        // Output the bin bounds and number of draws in bin
+        std::cout << ": [" << copyDist[i].minValue << ",";
+        std::cout << copyDist[i].maxValue << "]=" << copyDist[i].count << "  :";
+        // Output the correct number of asterisks for the bin
+        std::cout << std::setfill('*') << std::setw(copyDist[i].count) << std::setfill('*') << std::endl;
+    }
+    */
+
+
+    /*
+    // Graphical output of the scaled distribution
+    //----------------------------------------------------------------------
+    for (unsigned i = 0; i < copyDist.size(); ++i)
+    {
+        // Output the bin bounds and number of draws in bin
+        std::cout << "i=" << i << ": [" << copyDist[i].minValue << ",";
+        std::cout << copyDist[i].maxValue << "]=" << copyDist[i].count << "  :";
+        // Output the correct number of asterisks for the bin
+        std::cout << std::setfill('*') << std::setw(copyDist[i].count) << std::setfill('*') << std::endl;
+    }
+    */
+}
+
+
+

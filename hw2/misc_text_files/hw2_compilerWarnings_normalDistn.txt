@@ -1,0 +1,71 @@
+
+
+
+--------------------------------------------------------------------------------------
+COMPILER WARNINGS for Normal Distribution generateNormalDistribution function
+--------------------------------------------------------------------------------------
+1>------ Build started: Project: hw2_randomDistributions, Configuration: Debug Win32 ------
+1>hw2_main.cpp
+1>C:\__JARED\__USU_Fa2019\cs3460_C++\homework\hw2\hw2_randomDistributions\hw2_main.cpp(137,37): warning C4244:  '=': conversion from 'float' to 'uint8_t', possible loss of data
+1>C:\__JARED\__USU_Fa2019\cs3460_C++\homework\hw2\hw2_randomDistributions\hw2_main.cpp(173,65): warning C4244:  'argument': conversion from 'float' to 'uint32_t', possible loss of data
+1>C:\__JARED\__USU_Fa2019\cs3460_C++\homework\hw2\hw2_randomDistributions\hw2_main.cpp(173,53): warning C4244:  'argument': conversion from 'float' to 'uint32_t', possible loss of data
+1>C:\__JARED\__USU_Fa2019\cs3460_C++\homework\hw2\hw2_randomDistributions\hw2_main.cpp(174,25): warning C4244:  '=': conversion from 'float' to 'uint32_t', possible loss of data
+1>C:\__JARED\__USU_Fa2019\cs3460_C++\homework\hw2\hw2_randomDistributions\hw2_main.cpp(203,22): warning C4244:  'initializing': conversion from 'const uint32_t' to 'float', possible loss of data
+1>C:\__JARED\__USU_Fa2019\cs3460_C++\homework\hw2\hw2_randomDistributions\hw2_main.cpp(208,29): warning C4244:  'initializing': conversion from 'const uint32_t' to 'float', possible loss of data
+1>C:\__JARED\__USU_Fa2019\cs3460_C++\homework\hw2\hw2_randomDistributions\hw2_main.cpp(222,39): warning C4244:  '=': conversion from 'float' to 'uint32_t', possible loss of data
+1>hw2_randomDistributions.vcxproj -> C:\__JARED\__USU_Fa2019\cs3460_C++\homework\hw2\hw2_randomDistributions\Debug\hw2_randomDistributions.exe
+1>Done building project "hw2_randomDistributions.vcxproj".
+========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------
+CONSOLE OUTPUT
+--------------------------------------------------------------------------------------
+
+--- Normal ---
+[ 30, 30] :
+[*31,*31] :
+[*32,*32] :
+[*33,*33] :
+[*34,*34] :
+[*35,*35] :
+[*36,*36] :
+[*37,*37] :
+[***38,*38] :
+[***39,*39] :
+[**************40,*40] :
+[************41,*41] :
+[***************42,*42] :
+[**************************43,*43] :
+[***********************44,*44] :
+[***************************************45,*45] :
+[***************************************46,*46] :
+[*******************************************47,*47] :
+[***************************************************************48,*48] :
+[********************************************************49,*49] :
+[********************************************************************************50,*50] :
+[**************************************************************************51,*51] :
+[********************************************************52,*52] :
+[******************************************************************************53,*53] :
+[***************************************************54,*54] :
+[**********************************************************55,*55] :
+[******************************56,*56] :
+[**********************************57,*57] :
+[*****************58,*58] :
+[******************59,*59] :
+[*********60,*60] :
+[*********61,*61] :
+[*****62,*62] :
+[***63,*63] :
+[*64,*64] :
+[*65,*65] :
+[*66,*66] :
+[*67,*67] :
+[*68,*68] :
+[*69,*69] :
